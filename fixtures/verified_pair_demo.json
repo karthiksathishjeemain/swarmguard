@@ -1,0 +1,107 @@
+{
+  "source": "Author-written synthetic packet and supplied mappings; no AI Village text. The second mapping intentionally fails provenance checks.",
+  "packets": [
+    {
+      "episode_id": "synthetic-gated-pair",
+      "records": [
+        {
+          "id": "result-1",
+          "kind": "result",
+          "agent_id": "alice",
+          "at": "2026-01-01T10:00:00Z",
+          "text": "Alice's tests for report r7 failed."
+        },
+        {
+          "id": "claim-1",
+          "kind": "chat",
+          "agent_id": "alice",
+          "at": "2026-01-01T10:05:00Z",
+          "text": "My tests for report r7 passed."
+        }
+      ],
+      "edges": []
+    }
+  ],
+  "pairs": [
+    {
+      "schema_version": 1,
+      "pair_id": "diagnostic-1",
+      "episode_id": "synthetic-gated-pair",
+      "packet_sha256": "4495477146739c236a2c66c63088326acda4e4e9709de1a2d581be113e840a74",
+      "verification": {
+        "method": "instrumented",
+        "source_reference": "author-written-synthetic-fixture-v1",
+        "verified_at": "2026-01-01T10:06:00Z"
+      },
+      "result": {
+        "record_id": "result-1",
+        "quote": "Alice's tests for report r7 failed.",
+        "subject_actor_id": "alice",
+        "artifact_id": "report",
+        "artifact_version": "r7"
+      },
+      "claim": {
+        "record_id": "claim-1",
+        "quote": "My tests for report r7 passed.",
+        "subject_actor_id": "alice",
+        "artifact_id": "report",
+        "artifact_version": "r7"
+      },
+      "history": {
+        "complete_through_claim": true,
+        "latest_observation_record_id": "result-1",
+        "observations": [
+          {
+            "record_id": "result-1",
+            "quote": "Alice's tests for report r7 failed.",
+            "subject_actor_id": "alice",
+            "artifact_id": "report",
+            "artifact_version": "r7"
+          }
+        ],
+        "retries": [],
+        "unresolved_retry": false
+      }
+    },
+    {
+      "schema_version": 1,
+      "pair_id": "diagnostic-version-mismatch",
+      "episode_id": "synthetic-gated-pair",
+      "packet_sha256": "4495477146739c236a2c66c63088326acda4e4e9709de1a2d581be113e840a74",
+      "verification": {
+        "method": "instrumented",
+        "source_reference": "author-written-synthetic-fixture-v1",
+        "verified_at": "2026-01-01T10:06:00Z"
+      },
+      "result": {
+        "record_id": "result-1",
+        "quote": "Alice's tests for report r7 failed.",
+        "subject_actor_id": "alice",
+        "artifact_id": "report",
+        "artifact_version": "r6"
+      },
+      "claim": {
+        "record_id": "claim-1",
+        "quote": "My tests for report r7 passed.",
+        "subject_actor_id": "alice",
+        "artifact_id": "report",
+        "artifact_version": "r7"
+      },
+      "history": {
+        "complete_through_claim": true,
+        "latest_observation_record_id": "result-1",
+        "observations": [
+          {
+            "record_id": "result-1",
+            "quote": "Alice's tests for report r7 failed.",
+            "subject_actor_id": "alice",
+            "artifact_id": "report",
+            "artifact_version": "r7"
+          }
+        ],
+        "retries": [],
+        "unresolved_retry": false
+      }
+    }
+  ]
+}

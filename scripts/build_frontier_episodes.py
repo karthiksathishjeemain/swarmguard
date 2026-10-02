@@ -27,6 +27,7 @@ import psutil
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from swarmguard.schema import validate_packet
+from swarmguard.followup import fetch_peer_followup, followup_record_specs
 
 
 ROOT = Path("/home/azureuser/ai-swarm")
@@ -210,7 +211,7 @@ def quotations(text: str) -> list[str]:
 
 def build_packet(conn: duckdb.DuckDBPyConnection, selected: dict,
                  agents: dict, rooms: dict, village_goals: list,
-                 agent_goals: list) -> tuple[dict, dict]:
+                 agent_goals: list, *, include_peer_followup: bool = False) -> tuple[dict, dict]:
     result = rows(conn, """
         SELECT e.*, l.chat_at, l.match_delta_ms,
                c.content AS chat_content, c.agent_id AS chat_agent,
@@ -289,7 +290,7 @@ def build_packet(conn: duckdb.DuckDBPyConnection, selected: dict,
         packet["records"].append(record)
         metadata["records"][record_id] = {
             **source, "input_chars": len(text), "packet_chars": len(sanitized),
-            "redactions": redactions, "builder_truncated": truncated or centered_excerpt,
+            "redactions": redactions, "builder_truncated": truncated or centered_excerpt or bool(source.get("projection_truncated")),
             "excerpt_centered_on_reference": centered_excerpt,
             "existing_truncation_marker": "[TRUNCATED]" in text}
         return record_id
@@ -396,6 +397,42 @@ def build_packet(conn: duckdb.DuckDBPyConnection, selected: dict,
                 edge(chat_id, record_id, "mentions_shared_artifact_without_proven_influence", "shared_artifact")
             else:
                 edge(chat_id, record_id, "same_room_temporal_context_only", "temporal_only")
+
+    # Retain later peer behavior before the source's prior window can exhaust
+    # the packet budget. Temporal follow-up never becomes an adoption edge.
+    peer_followup = {"status": "not_requested", "turns": []}
+    followup_actions = followup_results = expected_followup_results = 0
+    if include_peer_followup and selected.get("required_target_chat_id"):
+        reference = next((chat for chat in chosen_chats if chat["id"] == selected["required_target_chat_id"]), None)
+        reference_id = "chat:" + selected["required_target_chat_id"]
+        if reference and any(record["id"] == reference_id for record in packet["records"]):
+            peer_followup = fetch_peer_followup(conn, reference)
+            for specs in followup_record_specs(peer_followup):
+                action = specs["action"]
+                aid = add(action["id"], action["kind"], action["agent_id"], action["at"],
+                          action["text"], action["source"], action["limit"])
+                followup_actions += aid is not None
+                if aid:
+                    edge(reference_id, aid, "same_peer_session_followup_temporal_context", "temporal_only")
+                outcome = specs["result"]
+                expected_followup_results += outcome is not None
+                if aid and outcome:
+                    rid = add(outcome["id"], outcome["kind"], outcome["agent_id"], outcome["at"],
+                              outcome["text"], outcome["source"], outcome["limit"])
+                    followup_results += rid is not None
+                    edge(aid, rid, "action_has_recorded_result", "direct")
+        else:
+            peer_followup = {"status": "reference_target_not_retained", "turns": []}
+    metadata["peer_followup"] = {key: value for key, value in peer_followup.items() if key != "turns"}
+    metadata["peer_followup"].update(
+        selected_actions=len(peer_followup["turns"]), retained_actions=followup_actions,
+        selected_results=expected_followup_results, retained_results=followup_results,
+        packet_bound_omitted_actions=followup_actions < len(peer_followup["turns"]),
+        packet_bound_omitted_results=followup_results < expected_followup_results)
+    if include_peer_followup:
+        metadata["limitations"].append(
+            "Peer follow-up uses at most four projected actions within fifteen minutes, in the uniquely matched sending session, "
+            "strictly after both the reference chat and send turn. It excludes other sessions and does not prove adoption or causality.")
 
     previous = json.loads(anchor["evidence_json"])[-10:]
     retained_tool_turns = 0
@@ -508,6 +545,7 @@ def build_packet(conn: duckdb.DuckDBPyConnection, selected: dict,
     source_bundle = {"anchor": anchor, "candidate_chats": candidates,
                      "prior_tool_window": previous, "other_chats": chosen_chats,
                      "reference_target_window": target_window,
+                     "peer_followup_context": peer_followup,
                      "village_goals": applicable_village[:2], "agent_goals": applicable_agent[:3]}
     metadata["source_bundle_sha256"] = hashlib.sha256(dumps(source_bundle).encode()).hexdigest()
     metadata["source_hash_scope"] = "materialized source fields used for this packet, not full dataset files"
@@ -529,10 +567,16 @@ def private_write(path: Path, text: str) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reference-candidates", type=Path)
+    parser.add_argument("--include-peer-followup", action="store_true",
+                        help="Add bounded same-session peer actions after explicit references; writes a new followup output stem")
     args = parser.parse_args()
     if sys.platform != "linux" or not SCRATCH.is_mount():
         parser.error("Run only on the Azure VM with scratch mounted")
+    if args.include_peer_followup and not args.reference_candidates:
+        parser.error("--include-peer-followup requires --reference-candidates")
     names = ("review_queue", "evidence_windows", "sent_message_links", "chat_messages", "computer_use_sessions")
+    if args.include_peer_followup:
+        names += ("computer_use_turns",)
     if any(not (DERIVED / f"{name}.parquet").is_file() for name in names):
         parser.error("Required projected tables and review queue are missing")
     for name in ("agents", "chat_rooms", "village_goals", "agent_goals"):
@@ -603,7 +647,8 @@ def main() -> int:
         agent_goals = read_small_table("agent_goals")
         packets, manifest = [], {}
         for row in selected:
-            packet, metadata = build_packet(conn, row, agents, rooms, village_goals, agent_goals)
+            packet, metadata = build_packet(conn, row, agents, rooms, village_goals, agent_goals,
+                                            include_peer_followup=args.include_peer_followup)
             metadata["source_queue_sha256"] = hashlib.sha256((DERIVED / "review_queue.parquet").read_bytes()).hexdigest()
             metadata["builder_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
             packets.append(packet)
@@ -611,6 +656,8 @@ def main() -> int:
         RESTRICTED.mkdir(mode=0o700, parents=True, exist_ok=True)
         RESTRICTED.chmod(0o700)
         stem = "frontier-reference" if args.reference_candidates else "frontier-pilot"
+        if args.include_peer_followup:
+            stem += "-followup"
         private_write(RESTRICTED / f"{stem}-packets.jsonl", "".join(dumps(p) + "\n" for p in packets))
         private_write(RESTRICTED / f"{stem}-manifest.json", json.dumps(manifest, indent=2) + "\n")
         all_metadata = [m for ep in manifest.values() for m in ep["records"].values()]
@@ -618,7 +665,8 @@ def main() -> int:
         for item in all_metadata:
             redactions.update(item["redactions"])
         report = {
-            "status": "complete", "builder_version": 1, "packet_count": len(packets),
+            "status": "complete", "builder_version": 2, "packet_count": len(packets),
+            "peer_followup_requested": args.include_peer_followup,
             "diagnostic_only": True,
             "protocol_deviations": [
                 "The pilot sample is not era- or length-matched and is not a frozen scored evaluation.",
@@ -634,6 +682,10 @@ def main() -> int:
             "cross_agent_strong_edges": sum(m["cross_agent_strong_edges"] for m in manifest.values()),
             "packets_with_target_tool_actions": sum(m["target_tool_turns_retained"] > 0 for m in manifest.values()),
             "target_tool_turns_retained": sum(m["target_tool_turns_retained"] for m in manifest.values()),
+            "peer_followup_status_counts": dict(Counter(m["peer_followup"]["status"] for m in manifest.values())),
+            "peer_followup_actions_retained": sum(m["peer_followup"]["retained_actions"] for m in manifest.values()),
+            "peer_followup_results_retained": sum(m["peer_followup"]["retained_results"] for m in manifest.values()),
+            "peer_followup_packets_with_actions": sum(m["peer_followup"]["retained_actions"] > 0 for m in manifest.values()),
             "edge_basis_counts": dict(Counter(e["basis"] for p in packets for e in p["edges"])),
             "redaction_counts": dict(redactions),
             "builder_truncated_records": sum(m["builder_truncated"] for m in all_metadata),

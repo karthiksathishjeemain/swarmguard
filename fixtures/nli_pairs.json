@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "source": "Author-written synthetic diagnostic pairs; no AI Village text.",
+  "purpose": "Check short-pair semantic relations and actor, artifact and time sensitivity; this is not a misalignment benchmark.",
+  "pairs": [
+    {"id":"tests_failed","group":"test_result","premise":"The test run for revision r7 finished with three failures.","hypothesis":"All tests in the test run for revision r7 passed.","expected":"contradiction"},
+    {"id":"tests_passed","group":"test_result","premise":"The test run for revision r7 finished with every test passing and zero failures.","hypothesis":"All tests in the test run for revision r7 passed.","expected":"entailment"},
+    {"id":"different_revision","group":"test_result","premise":"The test run for revision r6 finished with three failures.","hypothesis":"All tests in the test run for revision r7 passed.","expected":"neutral","rationale":"A result for r6 neither establishes nor refutes the result for r7."},
+    {"id":"alice_not_deployed","group":"actor","premise":"Alice did not deploy revision r7.","hypothesis":"Alice deployed revision r7.","expected":"contradiction"},
+    {"id":"alice_deployed","group":"actor","premise":"Alice deployed revision r7.","hypothesis":"Alice deployed revision r7.","expected":"entailment"},
+    {"id":"different_actor","group":"actor","premise":"Bob did not deploy revision r7.","hypothesis":"Alice deployed revision r7.","expected":"neutral","rationale":"Bob's action does not establish Alice's action."},
+    {"id":"publication_denied","group":"authorization","premise":"Alice is not permitted to publish report r7.","hypothesis":"Alice has permission to publish report r7.","expected":"contradiction"},
+    {"id":"publication_allowed","group":"authorization","premise":"Alice is permitted to publish report r7.","hypothesis":"Alice has permission to publish report r7.","expected":"entailment"},
+    {"id":"permission_other_actor","group":"authorization","premise":"Bob is permitted to publish report r7.","hypothesis":"Alice has permission to publish report r7.","expected":"neutral"},
+    {"id":"old_failure_new_claim","group":"chronology","premise":"At 10:00 the test run for revision r7 failed.","hypothesis":"At 10:05 the test run for revision r7 passed.","expected":"neutral","rationale":"An earlier failure alone does not refute a later successful rerun."},
+    {"id":"same_run_failure","group":"chronology","premise":"At 10:05 test run number 2 for revision r7 failed.","hypothesis":"At 10:05 test run number 2 for revision r7 passed.","expected":"contradiction"},
+    {"id":"successful_retry","group":"chronology","premise":"Test run number 1 failed. A retry, test run number 2, passed every test.","hypothesis":"Test run number 2 passed every test.","expected":"entailment"},
+    {"id":"report_deleted","group":"artifact","premise":"Alice permanently deleted report r7.","hypothesis":"Alice did not delete report r7.","expected":"contradiction"},
+    {"id":"report_retained","group":"artifact","premise":"Alice retained report r7 and did not delete it.","hypothesis":"Alice did not delete report r7.","expected":"entailment"},
+    {"id":"different_report","group":"artifact","premise":"Alice permanently deleted report r6.","hypothesis":"Alice did not delete report r7.","expected":"neutral"},
+    {"id":"goal_forbids_changes","group":"goal","premise":"The active instruction is to summarize the errors without modifying the database. Database changes are forbidden.","hypothesis":"The active instruction permits database changes.","expected":"contradiction"},
+    {"id":"goal_allows_changes","group":"goal","premise":"The active instruction explicitly permits database changes.","hypothesis":"The active instruction permits database changes.","expected":"entailment"},
+    {"id":"superseded_goal","group":"goal","premise":"Yesterday's instruction forbade database changes.","hypothesis":"Today's instruction permits database changes.","expected":"neutral","rationale":"Yesterday's rule does not establish the content of today's rule."}
+  ]
+}

@@ -1,12 +1,39 @@
 # SwarmGuard: evidence-grounded swarm incident investigation
 
-Status on 2026-10-02: **the project has pivoted from Laya to contextual swarm investigation**. The new engine uses an investigator, a skeptical second pass, and deterministic source-citation checks. GPT-6 Astra is the proposed initial model; no frontier API detection results are claimed yet. The repository remains local, per the owner's instruction.
+Status on 2026-10-02: **SwarmGuard has a working Azure-local investigation pipeline.** The provisional decision model is frozen Qwen3.5-9B in fast mode, selected after comparing smaller local models. It returns structured findings tied to source IDs; deterministic checks verify those references before a private evidence dashboard displays them. No inference API calls have been made. The repository remains local, per the owner's instruction.
 
-The detector targets coordinated constraint violations, contradicted or unsupported claims that another agent explicitly relies on, and unauthorized goal substitution. Findings require cited behavior from at least two agents and an explicit cross-agent connection. Ordinary errors, shared URLs and temporal proximity are insufficient. A model result is a review candidate, not proof of intent.
+The investigation targets coordinated constraint violations, contradicted claims that another agent explicitly relies on, and unauthorized goal substitution. Qwen3.5-9B matched all eight authored development cases in 146.3 seconds with four CPU workers. This small diagnostic set is not held out and does not establish natural-data accuracy. Ordinary errors, shared URLs and temporal proximity are insufficient evidence. A model result is a review candidate, not proof of intent. Human reference labels are still required.
 
 The Azure VM has 64 vCPUs, about 504 GiB RAM, and a verified 866 GiB scratch mount. The pinned text export contains 2.51 million computer-use turns and 183,485 chat messages. The existing pipeline links 100,353 of 100,354 sent-chat actions, with zero source-text mismatches, tied nearest matches or reused chat records in the new audit. This is provenance integrity, not measured detection accuracy. No dataset or model weights have been downloaded to the Mac.
 
-Start with the [research and design decision](docs/frontier-research.md), [prospective evaluation](docs/frontier-evaluation.md), and [frontier runbook](docs/frontier-runbook.md). The source validator and provider adapter are in `swarmguard/`; `scripts/run_frontier_pilot.py` defaults to an offline plan. Paid inference requires explicit data-transfer approval and credentials configured securely on the VM. Raw evidence, model findings and the spend ledger stay on the VM; hosted inference sends bounded selected packets to OpenAI.
+Start with the [local runbook](docs/local-runbook.md), [model comparison and measurements](docs/local-decision-models.md), and [local configuration](config/local.toml). The [earlier frontier design](docs/frontier-research.md) and [prospective evaluation](docs/frontier-evaluation.md) remain references; their proposed API experiments have not run. Local inference stays on Azure and needs no OpenAI key. Natural-data accuracy remains unmeasured until source cases receive reference review.
+
+The [current submission draft](docs/swarmguard-submission-draft.md) and [aggregate benchmark record](benchmarks/2026-10-02/summary.json) describe completed work and limits. The first eight real cases took 374.5 seconds: four completed no-finding outputs and four timeouts, with all eight routed to insufficient because of incomplete history. Expanded retrieval now includes bounded peer actions after the reference. No real incident is confirmed.
+
+Run the authored end-to-end pilot **on Azure**:
+
+```sh
+cd /home/azureuser/ai-swarm/project
+/home/azureuser/ai-swarm/.venv/bin/python scripts/run_swarm_review.py --synthetic \
+  --model-profile 9b --workers 4 --threads 8 \
+  --output-dir /home/azureuser/ai-swarm/restricted/swarmguard-authored-run
+```
+
+The output contains a self-contained HTML dashboard, deterministic review routes, checkpoint and packet hashes, and CPU/RAM/disk/runtime measurements. AgentDoG remains a broad safety baseline; DeBERTa NLI is an optional helper for independently verified result/claim mappings. Neither gates or overrides the contextual judge. Both exposed important failure cases in testing. All model inference runs on Azure.
+
+```mermaid
+flowchart LR
+    A[AI Village text on Azure] --> B[Streaming Parquet and source joins]
+    B --> C[Bounded multi-agent evidence packets]
+    C --> D[Local Qwen3.5-9B]
+    D --> E[Schema, source ID, actor and time checks]
+    C --> E
+    E --> F[Candidate, no finding, or insufficient]
+    F --> G[Private evidence dashboard]
+    C --> H[Blinded reviewer labels]
+    H --> I[Coverage and detection evaluation]
+    F --> I
+```
 
 The commands and links below document the **historical Laya baseline and reusable ingestion infrastructure**. Laya is no longer part of the selected detector. Do not rerun its inference to run the new pipeline.
 

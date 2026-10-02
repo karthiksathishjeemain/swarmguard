@@ -1,0 +1,43 @@
+schema_version = 1
+dataset_revision = "838b4150303ca8228e8edb432d8b8ccae353d258"
+training = false
+external_inference = false
+
+[guard]
+model = "AI45Research/AgentDoG1.5-Unified-Qwen3.5-4B"
+revision = "1793ffd3f72233c6458c6eeb566042fc019b5813"
+role = "broad trajectory safety diagnostic; not a swarm incident classifier"
+
+[nli]
+model = "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli"
+revision = "6f5cf0a2b59cabb106aca4c287eed12e357e90eb"
+max_pair_tokens = 512
+minimum_semantic_score = 0.80
+require_verified_identity_and_history = true
+
+[runtime]
+device = "cpu"
+dtype = "bfloat16"
+threads = 8
+max_episodes = 8
+max_input_tokens = 8192
+max_new_tokens = 512
+max_episode_seconds = 180
+max_rss_gib = 48
+
+[contextual]
+# Provisional selection; authored fixtures do not establish natural-data accuracy.
+model_profile = "9b"
+workers = 4
+threads = 8
+max_input_tokens = 16384
+max_new_tokens = 512
+max_episode_seconds = 180
+max_episodes = 8
+thinking = false
+
+[evaluation]
+authored_trajectory_cases = 8
+authored_nli_pairs = 18
+natural_data_reference_labels = 0
+auto_establish_swarm_incident = false

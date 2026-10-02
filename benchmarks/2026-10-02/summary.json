@@ -1,0 +1,122 @@
+{
+  "measured_on": "2026-10-02",
+  "environment": "Azure hackathon E64ads_v7 CPU-only",
+  "authored_cases_are_held_out": false,
+  "natural_data_reference_labels": 0,
+  "external_inference_api_calls": 0,
+  "selected_provisionally": "Qwen/Qwen3.5-9B",
+  "selected_revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+  "runs": [
+    {
+      "model": "AgentDoG1.5-Unified-Qwen3.5-4B",
+      "task": "broad trajectory safety",
+      "cases": 8,
+      "matched": 5,
+      "classified": 7,
+      "abstained": 1,
+      "workers": 1,
+      "threads_per_worker": 8,
+      "wall_seconds": 193.2302,
+      "cpu_seconds": 1492.2559,
+      "peak_worker_rss_gib": 9.8238
+    },
+    {
+      "model": "Qwen3.5-4B",
+      "mode": "fast",
+      "task": "swarm verdict and category",
+      "cases": 8,
+      "matched": 4,
+      "fully_matched_pairs": 1,
+      "classified": 5,
+      "abstained": 3,
+      "workers": 1,
+      "threads_per_worker": 8,
+      "wall_seconds": 178.0147,
+      "cpu_seconds": 1377.9152,
+      "peak_worker_rss_gib": 9.327
+    },
+    {
+      "model": "Qwen3.5-4B",
+      "mode": "reasoning",
+      "task": "swarm verdict and category",
+      "cases_requested": 8,
+      "results_available": 2,
+      "classified": 0,
+      "incomplete_results": 2,
+      "stopped_early": true,
+      "workers": 2,
+      "threads_per_worker": 8,
+      "wall_seconds": 334.9628,
+      "worker_cpu_seconds_sum": 5250.7347,
+      "cpu_includes_interrupted_next_cases": true,
+      "peak_worker_rss_gib": 9.8267
+    },
+    {
+      "model": "Qwen3.5-9B",
+      "mode": "fast",
+      "task": "swarm verdict and category",
+      "cases": 8,
+      "matched": 8,
+      "fully_matched_pairs": 4,
+      "classified": 8,
+      "abstained": 0,
+      "workers": 4,
+      "threads_per_worker": 8,
+      "wall_seconds": 146.3053,
+      "worker_cpu_seconds_sum": 3675.2713,
+      "worker_peak_rss_gib": [
+        16.4815,
+        16.535,
+        16.6162,
+        16.5639
+      ],
+      "input_tokens": 10644,
+      "output_tokens": 920
+    }
+  ],
+  "peak_simultaneous_process_tree_rss_measured": false,
+  "natural_data_precision": null,
+  "natural_data_recall": null,
+  "note": "Different worker counts prevent treating wall times as a controlled model-speed comparison. Labels are authored development expectations, not natural reference annotations. Raw reports stay on Azure.",
+  "real_execution_pilot": {
+    "packets": 8,
+    "human_reference_labels": 0,
+    "wall_seconds": 374.5098,
+    "worker_cpu_seconds_sum": 9690.1928,
+    "input_tokens": 84927,
+    "output_tokens": 767,
+    "classified_no_finding": 4,
+    "incomplete_generations": 4,
+    "final_routes": {
+      "insufficient": 8
+    },
+    "worker_peak_rss_gib": [
+      42.1869,
+      44.1444,
+      33.9232,
+      33.5495
+    ],
+    "meaning": "Execution/coverage pilot only; no cases cleared and no established incidents."
+  },
+  "expanded_retrieval": {
+    "packets": 8,
+    "records": 297,
+    "explicit_cross_agent_references": 9,
+    "later_peer_actions": 32,
+    "recorded_peer_outcomes": 32,
+    "excerpted_records": 85,
+    "max_records_per_packet": 40,
+    "max_serialized_characters": 31287,
+    "wall_seconds": 1.528,
+    "cpu_seconds": 6.179,
+    "peak_rss_bytes": 445452288,
+    "later_actions_establish_adoption": false
+  },
+  "software_tests": {
+    "azure_passed": 260,
+    "azure_skipped": 0,
+    "local_total": 260,
+    "local_skipped_missing_duckdb": 1,
+    "detector_accuracy_established_by_software_tests": false
+  }
+}

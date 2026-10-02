@@ -1,0 +1,13 @@
+# Install the CPU wheel first, from its official index:
+# python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.14.1+cpu
+# Exact full environment used for measurements: requirements.lock.txt.
+torch==2.14.1+cpu
+transformers==5.18.0
+huggingface_hub==1.33.0
+tokenizers==0.23.2
+safetensors==0.8.0
+numpy==2.5.3
+psutil==7.2.2
+duckdb==1.5.6
+pyarrow==25.0.1
+polars==1.44.2
