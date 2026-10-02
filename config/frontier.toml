@@ -1,0 +1,19 @@
+# Planning defaults. Running paid inference still requires explicit transfer approval.
+[model]
+name = "gpt-6-astra"
+reasoning_effort = "high"
+max_output_tokens = 6000
+timeout_seconds = 180
+
+[limits]
+max_episodes = 20
+max_request_bytes = 128000
+budget_usd = 20.0
+
+[pricing]
+# Standard short-context prices checked 2026-10-02. Reservation uses cache-write
+# input price as a conservative ceiling; no discount assumptions are needed.
+source = "https://developers.openai.com/api/docs/pricing"
+checked = "2026-10-02"
+input_ceiling_per_million = 12.5
+output_per_million = 50.0

@@ -1,3 +1,7 @@
+# Historical draft — superseded
+
+This draft describes the earlier Laya baseline. The selected project changed on 2026-10-02; see [frontier-research.md](frontier-research.md). It is not the current submission and has not been published.
+
 # Laya Trace: auditing AI Village claims against action histories
 
 **Submission draft, 2026-10-02.** Team names, email addresses, and the GitHub URL must be supplied before the event form is submitted. The [event logistics](https://swarmchasing.com/logistics/) require a short write-up or video and a code link. This draft is designed to stand alone as the short write-up.

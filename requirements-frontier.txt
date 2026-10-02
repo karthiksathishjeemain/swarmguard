@@ -1,0 +1,4 @@
+# Python 3.12.3 on the measured Azure VM. The model adapter uses the standard library.
+duckdb==1.5.6
+pyarrow==25.0.1
+psutil==7.2.2

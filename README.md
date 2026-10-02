@@ -1,8 +1,14 @@
-# Laya swarm investigation
+# SwarmGuard: evidence-grounded swarm incident investigation
 
-Status on 2026-10-02: the Azure VM has 64 vCPUs, about 504 GiB RAM, and a verified 866 GiB scratch mount. The pinned export contains 2.51 million computer-use turns and 183,485 chat messages. The evidence pipeline links 100,353 of 100,354 sent-chat actions to public chat records, builds 21,100 candidate action windows and 500 controls, and ranks leads for review. Frozen Laya inference has been piloted on VM data; its labels are secondary annotations with an option-order abstention rule. No dataset or model weights have been downloaded to this Mac.
+Status on 2026-10-02: **the project has pivoted from Laya to contextual swarm investigation**. The new engine uses an investigator, a skeptical second pass, and deterministic source-citation checks. GPT-6 Astra is the proposed initial model; no frontier API detection results are claimed yet. The repository remains local, per the owner's instruction.
 
-The selected project is a Laya-assisted investigator that links an agent's public action claim to its preceding tool actions and outputs. Exact data joins establish provenance. The ranked queue is a way to spend review time, not a misalignment score. Laya's real-data pilot showed misses and answer-order sensitivity, so its output is displayed as an abstaining facet, never as the basis for an accusation.
+The detector targets coordinated constraint violations, contradicted or unsupported claims that another agent explicitly relies on, and unauthorized goal substitution. Findings require cited behavior from at least two agents and an explicit cross-agent connection. Ordinary errors, shared URLs and temporal proximity are insufficient. A model result is a review candidate, not proof of intent.
+
+The Azure VM has 64 vCPUs, about 504 GiB RAM, and a verified 866 GiB scratch mount. The pinned text export contains 2.51 million computer-use turns and 183,485 chat messages. The existing pipeline links 100,353 of 100,354 sent-chat actions, with zero source-text mismatches, tied nearest matches or reused chat records in the new audit. This is provenance integrity, not measured detection accuracy. No dataset or model weights have been downloaded to the Mac.
+
+Start with the [research and design decision](docs/frontier-research.md), [prospective evaluation](docs/frontier-evaluation.md), and [frontier runbook](docs/frontier-runbook.md). The source validator and provider adapter are in `swarmguard/`; `scripts/run_frontier_pilot.py` defaults to an offline plan. Paid inference requires explicit data-transfer approval and credentials configured securely on the VM. Raw evidence, model findings and the spend ledger stay on the VM; hosted inference sends bounded selected packets to OpenAI.
+
+The commands and links below document the **historical Laya baseline and reusable ingestion infrastructure**. Laya is no longer part of the selected detector. Do not rerun its inference to run the new pipeline.
 
 After mounting scratch, creating the pinned environment, and completing Hugging Face login **on the VM**, run:
 
@@ -40,6 +46,6 @@ The pipeline fetches only named text tables, never the 177 GB screenshot corpus.
 
 The Mac is a control and documentation machine. Corpus access, extraction, indexing, model downloads, inference, and performance monitoring run on the Azure VM `hackathon`. Only code, documentation, and reviewed aggregate reports belong in this repository.
 
-The dataset permits research and analysis, with written permission required for training or fine-tuning. The design uses frozen Laya inference. Package and model revisions are pinned in the VM runbook and lockfile. Human-adjudicated claim and evidence quality is not yet measured; the bundled review workflow is designed to report it without moving corpus records off Azure.
+The dataset permits research and analysis, with written permission required for training or fine-tuning. No training or fine-tuning is planned. Historical package/model revisions are pinned in the VM runbook and lockfile; frontier request settings and checked pricing are in `config/frontier.toml`. Human-adjudicated detection quality is not yet measured.
 
 Dataset citation: AI Digest, “AI Village dataset,” 2026. [Dataset card and research terms](https://huggingface.co/datasets/aidigestorg/ai-village).

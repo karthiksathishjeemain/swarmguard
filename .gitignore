@@ -19,6 +19,7 @@ models/
 checkpoints/
 scratch/
 private/
+credentials/
 logs/
 restricted/
 reports/
