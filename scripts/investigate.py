@@ -48,14 +48,18 @@ def reviewed() -> dict[int, dict]:
 def get_case(position: int) -> tuple[dict, dict]:
     queue_path = DERIVED / "review_queue.parquet"
     evidence_path = DERIVED / "evidence_windows.parquet"
+    sent_path = DERIVED / "sent_message_links.parquet"
     rows = query_rows(f"""
         SELECT q.queue_position, q.send_turn_id, q.sample_arm, q.rank,
+               e.chat_id, e.agent_id, e.session_id, e.room_id,
+               s.chat_at, s.match_delta_ms,
                e.send_at, e.message_content, e.session_goal,
                e.evidence_json, e.preceding_action_count,
                e.prior_session_actions, e.window_truncated,
                e.recent_error_count, e.last_action_gap_seconds
         FROM read_parquet('{queue_path}') q
         JOIN read_parquet('{evidence_path}') e USING (send_turn_id)
+        JOIN read_parquet('{sent_path}') s USING (send_turn_id)
         WHERE q.queue_position = ?
     """, [position])
     if len(rows) != 1:
@@ -70,6 +74,11 @@ def print_case(position: int, blind: bool) -> None:
     print(f"Case {position} | sent at {row['send_at']}")
     if not blind:
         print(f"Sampling arm: {row['sample_arm']} | rank: {row['rank']}")
+        print(f"Send turn: {row['send_turn_id']} | chat row: {row['chat_id']}")
+        print(f"Agent: {row['agent_id']} | session: {row['session_id']}"
+              f" | room: {row['room_id']}")
+        print(f"Chat timestamp: {row['chat_at']}"
+              f" | send/chat delta: {row['match_delta_ms']} ms")
         model_path = DERIVED / "review_queue_laya.parquet"
         model_rows = query_rows(f"""
             SELECT laya_label, truncated
@@ -153,8 +162,17 @@ def check() -> None:
     """)[0]["matches"]
     if linked != 300:
         raise RuntimeError("ReviewQueueEvidenceJoinIncomplete")
+    provenance = query_rows(f"""
+        SELECT count(*) AS sends, count(s.chat_id) AS matched_chats
+        FROM read_parquet('{DERIVED / 'review_queue.parquet'}') q
+        JOIN read_parquet('{DERIVED / 'sent_message_links.parquet'}') s USING (send_turn_id)
+    """)[0]
+    if provenance["sends"] != 300:
+        raise RuntimeError("ReviewQueueSendJoinIncomplete")
     print(json.dumps({"queue_cases": len(q), "laya_annotations": len(l),
                       "evidence_links": linked,
+                      "send_links": provenance["sends"],
+                      "matched_chat_rows": provenance["matched_chats"],
                       "arms": dict(Counter(x["sample_arm"] for x in q)),
                       "model_labels": dict(Counter(x["laya_label"] for x in l)),
                       "raw_text_printed": False}, sort_keys=True))

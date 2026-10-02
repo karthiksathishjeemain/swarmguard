@@ -24,6 +24,7 @@ On the VM, run `bash /home/azureuser/ai-swarm/project/scripts/run_pipeline.sh` a
 - [Review lead ranking](scripts/rank_review_leads.py): transparent aggregate triage; scores are not misalignment probabilities.
 - [VM pipeline runner](scripts/run_pipeline.sh), [blinded review queue](scripts/prepare_review_queue.py), [Laya annotations](scripts/annotate_review_queue.py), [interactive investigator](scripts/investigate.py), and [review metrics](scripts/summarize_reviews.py).
 - [VM-local derived checkpoint](scripts/checkpoint_derived.py): save/restore hashed Parquet on the VM's persistent disk before deallocation.
+- [Public-safe synthetic demo](scripts/demo_synthetic.py) and [demo walkthrough](docs/demo.md): show real Laya inference without exposing AI Village records.
 - [Aggregate report renderer](scripts/render_aggregate_report.py) and [submission write-up](docs/submission-writeup.md).
 - [Exact VM package versions](requirements.lock.txt): initial lockfile; install the CPU PyTorch wheel from its CPU index before applying it.
 - [Frozen experiment configuration](config/experiment.toml): dataset/model revisions, retrieval bounds, review allocation, and CPU settings.
@@ -32,3 +33,5 @@ On the VM, run `bash /home/azureuser/ai-swarm/project/scripts/run_pipeline.sh` a
 The Mac is a control and documentation machine. Corpus access, extraction, indexing, model downloads, inference, and performance monitoring run on the Azure VM `hackathon`. Only code, documentation, and reviewed aggregate reports belong in this repository.
 
 The dataset permits research and analysis, with written permission required for training or fine-tuning. The design uses frozen Laya inference. Package and model revisions are pinned in the VM runbook and lockfile. Human-adjudicated claim and evidence quality is not yet measured; the bundled review workflow is designed to report it without moving corpus records off Azure.
+
+Dataset citation: AI Digest, “AI Village dataset,” 2026. [Dataset card and research terms](https://huggingface.co/datasets/aidigestorg/ai-village).
