@@ -1,0 +1,27 @@
+[dataset]
+repository = "aidigestorg/ai-village"
+revision = "838b4150303ca8228e8edb432d8b8ccae353d258"
+text_tables = ["chat_messages", "computer_use_sessions", "computer_use_turns"]
+screenshots_fetched = false
+
+[retrieval]
+preceding_actions = 20
+random_controls = 500
+review_score_is_probability = false
+
+[review]
+top_ranked = 100
+lexical_random = 100
+random_control = 100
+blind_seed = "ai-swarm-review-v1-20261002"
+
+[laya]
+package_version = "0.3.23"
+model = "typed-decisions"
+model_revision = "1a793eb568e6718f15941d08f85432581df534e3"
+device = "cpu"
+threads = 8
+batch_size = 8
+max_len = 512
+answer_order_permutations = 2
+abstain_on_disagreement = true
