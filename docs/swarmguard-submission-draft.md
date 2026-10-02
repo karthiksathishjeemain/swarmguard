@@ -35,6 +35,8 @@ The public-safe demo includes actual saved 9B predictions on fictional cases. In
 
 No complete AI Village episode has a human reference label in this version. We therefore do not report natural-data precision, recall or confirmed incidents. Eight private real packets test execution and context handling, but their selection and incomplete histories cannot support population estimates. Follow-up actions must be retrieved after the peer's reference; temporal proximity alone does not prove influence.
 
+The first eight real cases took 374.51s: four no-finding responses and four incomplete generations, with all eight routed to insufficient due to incomplete histories. Expanded retrieval retained 32 later peer actions and 32 recorded outcomes across eight packets. A subsequent two-case smoke still had one incomplete response at a 240-second cap. Natural-data CPU latency/completion is an unresolved engineering limit.
+
 The next quality gate is blinded review of complete source cases and a frozen, separately selected evaluation set. Report false alerts, missed reviewed incidents, unavailable context, abstentions and runtime separately. Source-ID validation prevents some invalid claims; it cannot establish semantic truth, artifact identity or internal intent.
 
 ## Reproducibility and submission status

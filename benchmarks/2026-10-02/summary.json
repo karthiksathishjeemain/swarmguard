@@ -118,5 +118,26 @@
     "local_total": 260,
     "local_skipped_missing_duckdb": 1,
     "detector_accuracy_established_by_software_tests": false
+  },
+  "expanded_two_case_smoke": {
+    "cases": 2,
+    "selection": "first two packets from deterministic expanded reference builder",
+    "workers": 2,
+    "threads_per_worker": 8,
+    "per_case_seconds_cap": 240,
+    "wall_seconds": 253.0046,
+    "worker_cpu_seconds_sum": 3487.6487,
+    "input_tokens": 24234,
+    "output_tokens": 528,
+    "classified_no_finding": 1,
+    "incomplete_generations": 1,
+    "final_routes": {
+      "insufficient": 2
+    },
+    "worker_peak_rss_gib": [
+      30.851,
+      44.5327
+    ],
+    "human_reference_labels": 0
   }
 }
