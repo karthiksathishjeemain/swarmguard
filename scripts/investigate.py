@@ -70,6 +70,18 @@ def print_case(position: int, blind: bool) -> None:
     print(f"Case {position} | sent at {row['send_at']}")
     if not blind:
         print(f"Sampling arm: {row['sample_arm']} | rank: {row['rank']}")
+        model_path = DERIVED / "review_queue_laya.parquet"
+        model_rows = query_rows(f"""
+            SELECT laya_label, truncated
+            FROM read_parquet('{model_path}')
+            WHERE queue_position = ?
+        """, [position])
+        if len(model_rows) != 1:
+            raise RuntimeError("LayaAnnotationMissing")
+        model = model_rows[0]
+        print(f"Laya claim annotation: {model['laya_label']}"
+              f" | input truncated: {model['truncated']}")
+        print("Laya is a secondary label, not a source-evidence verdict.")
     print(f"Prior actions in session: {row['prior_session_actions']}"
           f" | shown: {row['preceding_action_count']}"
           f" | truncated: {row['window_truncated']}")
